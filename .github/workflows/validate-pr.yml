@@ -1,0 +1,49 @@
+name: PR Description Validation
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+jobs:
+  validate:
+    name: Validate PR Description
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
+    steps:
+      - name: Check required sections
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const body = context.payload.pull_request.body ?? '';
+
+            const required = [
+              { label: 'Linked Ticket',  pattern: /Resolves:\s*\S+/i },
+              { label: 'Type of Change', pattern: /- \[x\]/i },
+              { label: 'Testing',        pattern: /- \[x\]/i },
+              { label: 'AI Assistance',  pattern: /- \[x\]/i },
+            ];
+
+            // Check that body is not just the unedited template
+            if (body.trim().length < 50) {
+              core.setFailed('PR description is empty or too short. Please fill out the template.');
+              return;
+            }
+
+            // Require a Resolves: line with an actual ticket reference
+            if (!/Resolves:\s*[A-Z]+-\d+/i.test(body) && !/Resolves:\s*https?:\/\//i.test(body)) {
+              core.setFailed(
+                'Missing linked ticket. Add "Resolves: TICKET-123" (or a URL) to your PR description.'
+              );
+              return;
+            }
+
+            // Require at least one checked checkbox
+            if (!/(- \[x\])/i.test(body)) {
+              core.setFailed(
+                'No checkboxes are checked. Please complete the PR template checklist.'
+              );
+              return;
+            }
+
+            console.log('PR description validation passed.');
