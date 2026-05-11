@@ -21,7 +21,7 @@ jobs:
               repo: context.repo.repo,
               pull_number: prNumber,
             });
-            const body = pr.body ?? '';
+            const body = (pr.body ?? '').replace(/<!--[\s\S]*?-->/g, '');
 
             if (body.trim().length < 50) {
               core.setFailed('PR description is empty or too short. Please fill out the template.');
