@@ -15,14 +15,13 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const body = context.payload.pull_request.body ?? '';
-
-            const required = [
-              { label: 'Linked Ticket',  pattern: /Resolves:\s*\S+/i },
-              { label: 'Type of Change', pattern: /- \[x\]/i },
-              { label: 'Testing',        pattern: /- \[x\]/i },
-              { label: 'AI Assistance',  pattern: /- \[x\]/i },
-            ];
+            const prNumber = context.payload.pull_request?.number ?? context.issue.number;
+            const { data: pr } = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: prNumber,
+            });
+            const body = pr.body ?? '';
 
             // Check that body is not just the unedited template
             if (body.trim().length < 50) {
