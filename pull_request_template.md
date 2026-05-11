@@ -31,16 +31,27 @@ Resolves: <!-- e.g. BGA-1234 -->
 - [ ] No secrets, credentials, or sensitive data committed
 - [ ] Dependent PRs / migrations are noted below (if any)
 
-## AI Assistance
+## AI Trailers
 
-<!-- Disclose any AI tooling used in this PR so reviewers can calibrate accordingly. -->
+<!--
+Required for ZV AI Certification Program (Path A).
+These trailers must be present in the merge commit message.
+Copy the block below into your merge commit body.
 
-- [ ] No AI tooling used
-- [ ] AI-assisted (code suggestions, review, generation) — tool(s): <!-- e.g. Claude Code, GitHub Copilot, ChatGPT -->
+AI-Assist: yes|no
+AI-Tool: copilot|claude|chatgpt|cursor|other
+AI-Mode: generated|assisted|reviewed|none
 
-<!-- If AI-generated code is included, add the appropriate trailer below: -->
-<!-- Co-Authored-By: Claude <noreply@anthropic.com> -->
-<!-- Co-Authored-By: GitHub Copilot <copilot@github.com> -->
+Definitions:
+  generated — AI produced the bulk of the code, you reviewed/edited it
+  assisted  — You wrote the code, AI helped with suggestions along the way
+  reviewed  — AI was used after the fact to review/refactor existing code
+  none      — No AI involvement (use with AI-Assist: no)
+-->
+
+AI-Assist: 
+AI-Tool: 
+AI-Mode: 
 
 ## Notes for Reviewer
 

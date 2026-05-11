@@ -23,7 +23,6 @@ jobs:
             });
             const body = pr.body ?? '';
 
-            // Check that body is not just the unedited template
             if (body.trim().length < 50) {
               core.setFailed('PR description is empty or too short. Please fill out the template.');
               return;
@@ -37,12 +36,58 @@ jobs:
               return;
             }
 
-            // Require at least one checked checkbox
-            if (!/(- \[x\])/i.test(body)) {
+            // Require AI-Assist trailer
+            const aiAssistMatch = body.match(/^AI-Assist:\s*(.+)$/im);
+            if (!aiAssistMatch) {
               core.setFailed(
-                'No checkboxes are checked. Please complete the PR template checklist.'
+                'Missing AI-Assist trailer. Add "AI-Assist: yes" or "AI-Assist: no" to your PR description.'
               );
               return;
+            }
+
+            const aiAssist = aiAssistMatch[1].trim().toLowerCase();
+            if (!['yes', 'no'].includes(aiAssist)) {
+              core.setFailed(
+                `Invalid AI-Assist value "${aiAssistMatch[1].trim()}". Must be "yes" or "no".`
+              );
+              return;
+            }
+
+            // If AI was used, require AI-Tool and AI-Mode
+            if (aiAssist === 'yes') {
+              const aiToolMatch = body.match(/^AI-Tool:\s*(.+)$/im);
+              if (!aiToolMatch || !aiToolMatch[1].trim()) {
+                core.setFailed(
+                  'AI-Assist is "yes" but AI-Tool is missing. Add "AI-Tool: copilot|claude|chatgpt|cursor|other".'
+                );
+                return;
+              }
+
+              const validTools = ['copilot', 'claude', 'chatgpt', 'cursor', 'other'];
+              const tool = aiToolMatch[1].trim().toLowerCase();
+              if (!validTools.includes(tool)) {
+                core.setFailed(
+                  `Invalid AI-Tool value "${aiToolMatch[1].trim()}". Must be one of: ${validTools.join(', ')}.`
+                );
+                return;
+              }
+
+              const aiModeMatch = body.match(/^AI-Mode:\s*(.+)$/im);
+              if (!aiModeMatch || !aiModeMatch[1].trim()) {
+                core.setFailed(
+                  'AI-Assist is "yes" but AI-Mode is missing. Add "AI-Mode: generated|assisted|reviewed".'
+                );
+                return;
+              }
+
+              const validModes = ['generated', 'assisted', 'reviewed'];
+              const mode = aiModeMatch[1].trim().toLowerCase();
+              if (!validModes.includes(mode)) {
+                core.setFailed(
+                  `Invalid AI-Mode value "${aiModeMatch[1].trim()}". Must be one of: ${validModes.join(', ')}.`
+                );
+                return;
+              }
             }
 
             console.log('PR description validation passed.');
